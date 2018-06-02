@@ -1,63 +1,63 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
 <head>
-	<meta charset="UTF-8">
-    <title>Hello WebSocket</title>
-    
-    <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<meta charset="UTF-8">
+<title>Websocket Chat</title>
 
-<!-- Optional theme -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+<link
+	href="https://stackpath.bootstrapcdn.com/bootswatch/4.1.1/materia/bootstrap.min.css"
+	rel="stylesheet"
+	integrity="sha384-B7n8QuRe6UtnoLRAwGkku55zwnr4h8whf+ThXUwwlP9SaeNzHlGR4cOOuEZVMYOL"
+	crossorigin="anonymous">
+<link href="chat.css" rel="stylesheet">
+<script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+<script>
+	  $(function () {
+		  var params = (new URL(document.location)).searchParams;
+		  var sala = params.get("sala"); 
+		  var user = params.get("nickname");
+		  console.log(document.location.host);
+		  var socket = new WebSocket("ws://" +document.location.host + "/chatMultiSalas/" +sala +"/"+user);
+			$('form').submit(function() {
+				if($('#m').val().length > 0){
+					var msg = "send " + $('#m').val();
+					socket.send(msg);
+					$('#m').val('');					
+				}
+				return false;
+			});
 
-<!-- Latest compiled and minified JavaScript -->
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    
-    <!-- <link href="/main.css" rel="stylesheet">
-    <script src="/webjars/jquery/jquery.min.js"></script>
-    <script src="/webjars/sockjs-client/sockjs.min.js"></script>
-    <script src="/webjars/stomp-websocket/stomp.min.js"></script>
-    <script src="/app.js"></script> -->
+			socket.onmessage = function(event) {
+				msg = event.data;
+				$('#messages').append($('<li>').text(msg));
+			};
+
+		});
+	</script>
 </head>
 <body>
-<noscript><h2 style="color: #ff0000">Seems your browser doesn't support Javascript! Websocket relies on Javascript being
-    enabled. Please enable
-    Javascript and reload this page!</h2></noscript>
-<div id="main-content" class="container">
-    <div class="row">
-        <div class="col-md-6">
-            <form class="form-inline">
-                <div class="form-group">
-                    <label for="connect">WebSocket connection:</label>
-                    <button id="connect" class="btn btn-default" type="submit">Connect</button>
-                    <button id="disconnect" class="btn btn-default" type="submit" disabled="disabled">Disconnect
-                    </button>
-                </div>
-            </form>
-        </div>
-        <div class="col-md-6">
-            <form class="form-inline">
-                <div class="form-group">
-                    <label for="name">What is your name?</label>
-                    <input type="text" id="name" class="form-control" placeholder="Your name here...">
-                </div>
-                <button id="send" class="btn btn-default" type="submit">Send</button>
-            </form>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-md-12">
-            <table id="conversation" class="table table-striped">
-                <thead>
-                <tr>
-                    <th>Greetings</th>
-                </tr>
-                </thead>
-                <tbody id="greetings">
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-9">
+				<ul id="messages"></ul>
+
+			</div>
+			<div class="col-md-3">
+				<h3>Usuários</h3>
+				<div class="list-group">
+				<ul>
+						<li class="list-group-item list-group-item-action active">um</li>
+						<li class="list-group-item list-group-item-action">dois</li>
+						<li class="list-group-item list-group-item-action">tres</li>
+					</ul>
+					
+				</div>
+			</div>
+		</div>
+	</div>
+	<form action="">
+		<input id="m" autocomplete="off" autofocus="autofocus" />
+		<button>Enviar</button>
+	</form>
 </body>
 </html>

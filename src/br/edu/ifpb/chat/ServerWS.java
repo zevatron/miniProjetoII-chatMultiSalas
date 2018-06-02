@@ -1,13 +1,16 @@
 package br.edu.ifpb.chat;
 
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.websocket.CloseReason;
 import javax.websocket.OnClose;
+import javax.websocket.OnMessage;
 import javax.websocket.OnOpen;
 import javax.websocket.Session;
 import javax.websocket.server.PathParam;
@@ -33,7 +36,9 @@ public class ServerWS {
 
 		if (salas.get(sala).get(usuario) == null) {
 			salas.get(sala).put(usuario, s);
+			
 			System.out.println("Entrou na sala");
+			
 		} else {
 			s.getBasicRemote().sendText("Já existe um usuário conectado com o nome: \"" + usuario + "\"");
 			usuario = usuario + new Date().getTime();
@@ -43,6 +48,7 @@ public class ServerWS {
 			// usuário conectado com o mesmo nome:"));
 			salas.get(sala).put(usuario, s);
 		}
+		enviarParaTodos(mensagem(usuario,"entrou na sala"), sala);
 
 	}
 
@@ -50,7 +56,7 @@ public class ServerWS {
 	public void desconectar(@PathParam("sala") String sala, @PathParam("usuario") String usuario, Session s)
 			throws IOException {
 
-		s.getBasicRemote().sendText(usuario + "saiu da sala...");
+//		s.getBasicRemote().sendText(usuario + "saiu da sala...");
 
 		if (salas.get(sala).remove(usuario, s)) {
 			System.out.println(usuario + " saiu da sala: " + sala);
@@ -58,7 +64,41 @@ public class ServerWS {
 
 		if (salas.get(sala).values().isEmpty()) {
 			salas.remove(sala);
+			System.out.println("Sala: " +sala+ " foi removida");
 		}
+	}
+	
+	@OnMessage
+	public void onMessage(String mensagem, @PathParam("sala") String sala, @PathParam("usuario") String usuario) throws IOException {
+		String send = mensagem.split(" ")[0];
+		Boolean reservado = Arrays.asList( mensagem.split(" ") ).contains("-u");
+		
+		if(send.equals("send")) {
+			
+			if(reservado) {
+				return;
+			}else {
+				String m = mensagem.substring(5);
+				enviarParaTodos(mensagem(usuario, m), sala);
+			}
+		}
+		
+	}
+
+	private void enviarParaTodos(String mensagem, String sala) throws IOException {
+		for( Session s : salas.get(sala).values()) {
+			s.getBasicRemote().sendText(mensagem);
+		}
+	}
+	private String mensagem(String usuario, String m) {
+		return usuario + " " + getHora() + m;
+	}
+	
+	private String getHora() {
+		SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss : ");
+		Date hora = Calendar.getInstance().getTime(); // Ou qualquer outra forma que tem
+		String horaFormatada = sdf.format(hora);
+		return  horaFormatada;
 	}
 
 }
