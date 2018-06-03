@@ -58,8 +58,10 @@ public class ServerWS {
 
 //		s.getBasicRemote().sendText(usuario + "saiu da sala...");
 
-		if (salas.get(sala).remove(usuario, s)) {
+		if (salas.get(sala).containsValue(s)) {	
 			System.out.println(usuario + " saiu da sala: " + sala);
+			enviarParaTodosMenosSession(mensagem(usuario, "Saiu da sala"), sala,s);
+			salas.get(sala).remove(usuario, s);
 		}
 
 		if (salas.get(sala).values().isEmpty()) {
@@ -90,6 +92,15 @@ public class ServerWS {
 			s.getBasicRemote().sendText(mensagem);
 		}
 	}
+	
+	private void enviarParaTodosMenosSession(String mensagem, String sala, Session session) throws IOException {
+		for( Session s : salas.get(sala).values()) {
+			if(!s.equals(session)) {
+				s.getBasicRemote().sendText(mensagem);				
+			}
+		}
+	}
+	
 	private String mensagem(String usuario, String m) {
 		return usuario + " " + getHora() + m;
 	}
