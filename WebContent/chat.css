@@ -57,12 +57,15 @@ form button {
 	border: none;
 	padding: 10px;
 }
-
+#users{
+	margin-top: 90px;
+}
 #messages {
 	list-style-type: none;
 	margin: 0;
 	padding: 0;
 	overflow: auto;
+	margin-top: 90px;
 }
 
 #messages li {
