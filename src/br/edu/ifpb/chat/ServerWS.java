@@ -47,9 +47,11 @@ public class ServerWS {
 			// s.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "Já existe um
 			// usuário conectado com o mesmo nome:"));
 			salas.get(sala).put(usuario, s);
+			s.getBasicRemote().sendText("rename "+usuario);
 		}
 		enviarParaTodos(mensagem(usuario,"entrou na sala"), sala);
-
+		enviarParaTodos("user-list " + salas.get(sala).keySet().toString(), sala);
+		
 	}
 
 	@OnClose
@@ -71,22 +73,36 @@ public class ServerWS {
 	}
 	
 	@OnMessage
-	public void onMessage(String mensagem, @PathParam("sala") String sala, @PathParam("usuario") String usuario) throws IOException {
-		String send = mensagem.split(" ")[0];
+	public void onMessage(String mensagem, @PathParam("sala") String sala, Session s) throws IOException {
+		String tipo = mensagem.split(" ")[0];
 		Boolean reservado = Arrays.asList( mensagem.split(" ") ).contains("-u");
+		String usuario = getKeyFromValue(salas.get(sala), s);
 		
-		if(send.equals("send")) {
+		if(tipo.equals("send")) {
 			
 			if(reservado) {
-				return;
+				String d = mensagem.split(" ")[2];
+				String m = mensagem.substring(8 + d.length());
+				enviarReservadamente(m, sala, usuario, d);
 			}else {
 				String m = mensagem.substring(5);
 				enviarParaTodos(mensagem(usuario, m), sala);
 			}
 		}
+		if(tipo.equals("rename")) {
+			enviarParaTodos(mensagem(usuario, "Alterou o nome para: "+mensagem.substring(7)), sala);
+			salas.get(sala).put(mensagem.substring(7), s);
+			salas.get(sala).remove(usuario);
+			enviarParaTodos("user-list " + salas.get(sala).keySet().toString(), sala);
+		}
 		
 	}
-
+	
+	private void enviarReservadamente(String mensagem, String sala, String remetente ,String destinatario) throws IOException {
+		salas.get(sala).get(destinatario).getBasicRemote().sendText(mensagem(remetente,"<reservadamente com você> " + mensagem));
+		salas.get(sala).get(remetente).getBasicRemote().sendText(mensagem(remetente,"<reservadamente com "+ destinatario +"> " + mensagem));
+	}
+	
 	private void enviarParaTodos(String mensagem, String sala) throws IOException {
 		for( Session s : salas.get(sala).values()) {
 			s.getBasicRemote().sendText(mensagem);
@@ -110,6 +126,14 @@ public class ServerWS {
 		Date hora = Calendar.getInstance().getTime(); // Ou qualquer outra forma que tem
 		String horaFormatada = sdf.format(hora);
 		return  horaFormatada;
+	}
+	private String getKeyFromValue(Map<String, Session> m, Session	s) {
+	    for (String v : m.keySet()) {
+	      if (m.get(v).equals(s)) {
+	        return v;
+	      }
+	    }
+	    return null;
 	}
 
 }
