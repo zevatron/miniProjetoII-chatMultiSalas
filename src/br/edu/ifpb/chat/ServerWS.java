@@ -64,13 +64,13 @@ public class ServerWS {
 			System.out.println(usuario + " saiu da sala: " + sala);
 			enviarParaTodosMenosSession(mensagem(usuario, "Saiu da sala"), sala,s);
 			salas.get(sala).remove(usuario, s);
+			enviarParaTodosMenosSession("user-list " + salas.get(sala).keySet().toString(), sala,s);
 		}
 
 		if (salas.get(sala).values().isEmpty()) {
 			salas.remove(sala);
 			System.out.println("Sala: " +sala+ " foi removida");
 		}
-		enviarParaTodos("user-list " + salas.get(sala).keySet().toString(), sala);
 	}
 	
 	@OnMessage
