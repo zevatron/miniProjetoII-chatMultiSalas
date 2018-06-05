@@ -49,6 +49,10 @@ $(function() {
 		    } 
 		}
 		
+		$('#listUsers').click(function () {
+			$('#m').focus();
+		});
+		
 
 		$('#formMessage').submit(function() {
 			if ($('#m').val().length > 0) {
