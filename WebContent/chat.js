@@ -1,84 +1,101 @@
-"use strict";
-var connection = null;
-var clientID = 0;
+$(function() {
+		var params = (new URL(document.location)).searchParams;
 
-var WebSocket = WebSocket || MozWebSocket;
+		checkCookie();
+		
+		var sala = params.get("sala");
+		var user = params.get("nickname");
 
-function setUsername() {
-  var msg = {
-    name: document.getElementById("name").value,
-    date: Date.now(),
-    id: clientID,
-    type: "username"
-  };
-  connection.send(JSON.stringify(msg));
-}
+		var socket = new WebSocket("ws://" + document.location.host
+				+ "/chatMultiSalas/" + sala + "/" + user);
+		
+		setCookie("chatMultiSalas",sala);
+		
+		atualizarNome(user);
+		$('#navBarTitle').text('ChatMultiSalas - ' + sala);
 
-function connect() {
-  var serverUrl = "ws://" + window.location.hostname + ":8080/chatMultiSalas/sala/" 
-  + document.getElementById("name").value;
+		function atualizarNome(nome) {
+			if (socket) {
+				user = nome;
+				$('#navbarDropdownMenuLinkUser').text(nome);
+			}			
+		}
+		
+		function setCookie(cname, cvalue) {
+		    document.cookie = cname + "=" + cvalue + ";" ;
+		}
+		
+		function getCookie(cname) {
+		    var name = cname + "=";
+		    var ca = document.cookie.split(';');
+		    for(var i = 0; i < ca.length; i++) {
+		        var c = ca[i];
+		        while (c.charAt(0) == ' ') {
+		            c = c.substring(1);
+		        }
+		        if (c.indexOf(name) == 0) {
+		            return c.substring(name.length, c.length);
+		        }
+		    }
+		    return "";
+		}
 
-  connection = new WebSocket(serverUrl);
+		function checkCookie() {
+		    var user = getCookie("chatMultiSalas");
+		    if (user != "") {
+		        alert("Welcome again " + user);
+		    } 
+		}
+		
 
-  connection.onopen = function(evt) {
-    document.getElementById("text").disabled = false;
-    document.getElementById("send").disabled = false;
-  };
+		$('#formMessage').submit(function() {
+			if ($('#m').val().length > 0) {
+				if($('#listUsers').val()[0] != "Todos"){
+					var msg = "send -u " + $('#listUsers').val()[0] + " " + $('#m').val();
+				}else{
+					var msg = "send " + $('#m').val();					
+				}
+				socket.send(msg);
+				$('#m').val('');
+			}
+			return false;
+		});
+		
+		$('#formRename').submit(function() {
+			if ($('#rename').val().length > 0) {
+				var msg = "rename " + $('#rename').val();
+				atualizarNome($('#rename').val());
+				socket.send(msg);
+				$('#rename').val('');
+				$('#exampleModal').modal('toggle');
+			}
+			return false;
+		});
+		
 
-  connection.onmessage = function(evt) {
-    var f = document.getElementById("chatbox").contentDocument;
-    var text = "";
-    var msg = JSON.parse(evt.data);
-    var time = new Date(msg.date);
-    var timeStr = time.toLocaleTimeString();
+		socket.onmessage = function(event) {
+			msg = event.data;
+			if (msg.split(' ')[0] == 'user-list') {
+				users = msg.slice(11, -1).split(',');
+				$('#listUsers').empty();
+				$('#listUsers').append($('<option>').text('Todos')
+						.addClass('list-group-item list-group-item-action')
+						.attr('selected','selected'));
+				for (i = 0; i < users.length; i++) {
+					$('#listUsers').append($('<option>')
+							.text(users[i]).addClass('list-group-item list-group-item-action')
+							.val(users[i][0]==' ' ? users[i].slice(1) : users[i] ));
+				}
+			}else if(msg.split(' ')[0] == 'rename'){
+				atualizarNome(msg.slice(7, -1));
+			} else {
+				$('#messages').append($('<li>').text(msg));
+			}
+		};
+		
+		socket.onclose = function (event) {
+			document.cookie = "chatMultiSalas=; expires=Thu, 01 Jan 1970 00:00:00 UTC;";
+		};
+		
 
-    switch(msg.type) {
-      case "id":
-        clientID = msg.id;
-        setUsername();
-        break;
-      case "username":
-        text = "<b>User <em>" + msg.name + "</em> signed in at " + timeStr + "</b><br>";
-        break;
-      case "message":
-        text = "(" + timeStr + ") <b>" + msg.name + "</b>: " + msg.text + "<br>";
-        break;
-      case "rejectusername":
-        text = "<b>Your username has been set to <em>" + msg.name + "</em> because the name you chose is in use.</b><br>";
-        break;
-      case "userlist":
-        var ul = "";
-        var i;
-
-        for (i=0; i < msg.users.length; i++) {
-          ul += msg.users[i] + "<br>";
-        }
-        document.getElementById("userlistbox").innerHTML = ul;
-        break;
-    }
-
-    if (text.length) {
-      f.write(text);
-      document.getElementById("chatbox").contentWindow.scrollByPages(1);
-    }
-  };
-}
-
-function send() {
-  var msg = {
-    text: document.getElementById("text").value,
-    type: "message",
-    id: clientID,
-    date: Date.now()
-  };
-  connection.send(JSON.stringify(msg));
-  document.getElementById("text").value = "";
-}
-
-function handleKey(evt) {
-  if (evt.keyCode === 13 || evt.keyCode === 14) {
-    if (!document.getElementById("send").disabled) {
-      send();
-    }
-  }
-}
+	});

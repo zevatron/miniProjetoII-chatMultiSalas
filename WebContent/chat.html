@@ -15,84 +15,9 @@
 	src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"
 	integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T"
 	crossorigin="anonymous"></script>
-<script>
-	$(function() {
-		var params = (new URL(document.location)).searchParams;
 
-		var sala = params.get("sala");
-		var user = params.get("nickname");
+<script type="text/javascript" src="chat.js"></script>
 
-		var socket = new WebSocket("ws://" + document.location.host
-				+ "/chatMultiSalas/" + sala + "/" + user);
-		
-		atualizarNome(user);
-		$('#navBarTitle').text('ChatMultiSalas - ' + sala);
-
-		function atualizarNome(nome) {
-			if (socket) {
-				user = nome;
-				$('#navbarDropdownMenuLinkUser').text(nome);
-			}			
-		}
-		
-
-		$('#formMessage').submit(function() {
-			if ($('#m').val().length > 0) {
-				if($('#listUsers').val()[0] != "Todos"){
-					var msg = "send -u " + $('#listUsers').val()[0] + " " + $('#m').val();
-				}else{
-					var msg = "send " + $('#m').val();					
-				}
-				socket.send(msg);
-				$('#m').val('');
-			}
-			return false;
-		});
-		
-		$('#formRename').submit(function() {
-			if ($('#rename').val().length > 0) {
-				var msg = "rename " + $('#rename').val();
-				atualizarNome($('#rename').val());
-				socket.send(msg);
-				$('#rename').val('');
-				$('#exampleModal').modal('toggle');
-			}
-			return false;
-		});
-		
-		
-
-		$('.list-group li').click(function(e) {
-			e.preventDefault()
-
-			$that = $(this);
-
-			$that.parent().find('li').removeClass('active');
-			$that.addClass('active');
-		});
-
-		socket.onmessage = function(event) {
-			msg = event.data;
-			if (msg.split(' ')[0] == 'user-list') {
-				users = msg.slice(11, -1).split(',');
-				$('#listUsers').empty();
-				$('#listUsers').append($('<option>').text('Todos')
-						.addClass('list-group-item list-group-item-action')
-						.attr('selected','selected'));
-				for (i = 0; i < users.length; i++) {
-					$('#listUsers').append($('<option>')
-							.text(users[i]).addClass('list-group-item list-group-item-action')
-							.val(users[i][0]==' ' ? users[i].slice(1) : users[i] ));
-				}
-			}else if(msg.split(' ')[0] == 'rename'){
-				atualizarNome(msg.slice(7, -1));
-			} else {
-				$('#messages').append($('<li>').text(msg));
-			}
-		};
-
-	});
-</script>
 </head>
 <body>
 	<nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top">

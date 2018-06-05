@@ -55,10 +55,10 @@ public class ServerWS {
 	}
 
 	@OnClose
-	public void desconectar(@PathParam("sala") String sala, @PathParam("usuario") String usuario, Session s)
+	public void desconectar(@PathParam("sala") String sala,  Session s)
 			throws IOException {
 
-//		s.getBasicRemote().sendText(usuario + "saiu da sala...");
+		String usuario = getKeyFromValue(salas.get(sala), s);
 
 		if (salas.get(sala).containsValue(s)) {	
 			System.out.println(usuario + " saiu da sala: " + sala);
@@ -70,6 +70,7 @@ public class ServerWS {
 			salas.remove(sala);
 			System.out.println("Sala: " +sala+ " foi removida");
 		}
+		enviarParaTodos("user-list " + salas.get(sala).keySet().toString(), sala);
 	}
 	
 	@OnMessage
