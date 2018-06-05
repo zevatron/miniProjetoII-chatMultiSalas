@@ -76,7 +76,10 @@
 							<form action="" id="formRename">
 							<div class="modal-body">
 								<label class="col-form-label" for="renameUser">Novo Nickname</label> 
-								<input id="rename" class="form-control" placeholder="" name="renameUser" autofocus="autofocus">
+								<input id="rename" class="form-control" 
+								pattern="\w{2,}\S+" required="required" 
+								title="Não são permitidos nomes com espaços em branco. O nome dete ter no mínimo 3 caracteres."
+								 name="renameUser" autofocus="autofocus">
 							</div>
 							<div class="modal-footer">
 								<button type="button" class="btn btn-secondary"

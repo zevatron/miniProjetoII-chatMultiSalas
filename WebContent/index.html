@@ -28,7 +28,8 @@
 							<label class="col-form-label" for="sala">Sala</label> 
 							<input type="text" class="form-control" placeholder="" name="sala" autofocus="autofocus"> 
 							<label class="col-form-label" for="nickname">Nickname</label> <input type="text"
-								class="form-control" placeholder="" name="nickname">
+								class="form-control" placeholder="" name="nickname" pattern="\w{2,}\S+" required="required" 
+								title="Não são permitidos nomes com espaços em branco. O nome dete ter no mínimo 3 caracteres." >
 						</div>
 						<button type="submit" class="btn btn-primary btn-lg float-right">Entrar</button>
 					</form>
