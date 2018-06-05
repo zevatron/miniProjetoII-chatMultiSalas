@@ -43,7 +43,9 @@ $(function() {
 		function checkCookie() {
 		    var user = getCookie("chatMultiSalas");
 		    if (user != "") {
-		        alert("Welcome again " + user);
+		        alert("Você já participa da sala: " + user 
+		        		+ ". Não é permitido participar de mais de uma sala ao mesmo tempo.");
+		        window.history.back();
 		    } 
 		}
 		
