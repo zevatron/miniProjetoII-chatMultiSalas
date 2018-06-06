@@ -91,8 +91,23 @@ public class ServerWS {
 			}
 		}
 		if(tipo.equals("rename")) {
-			enviarParaTodos(mensagem(usuario, "Alterou o nome para: "+mensagem.substring(7)), sala);
-			salas.get(sala).put(mensagem.substring(7), s);
+			String novoNome = mensagem.substring(7);
+			
+
+			if (salas.get(sala).get(novoNome) != null) {
+				s.getBasicRemote().sendText("Já existe um usuário conectado com o nome: \"" + novoNome + "\"");
+				novoNome = novoNome + new Date().getTime();
+				s.getBasicRemote().sendText("Seu nome de usuário oi alterado para: \"" + novoNome
+						+ "\". Você poderá alterar seu nome a qualquer momento.");
+				// s.close(new CloseReason(CloseReason.CloseCodes.VIOLATED_POLICY, "Já existe um
+				// usuário conectado com o mesmo nome:"));
+				salas.get(sala).put(novoNome, s);
+//				s.getBasicRemote().sendText("rename "+novoNome);
+			}else {
+				salas.get(sala).put(novoNome, s);
+			}
+			
+			enviarParaTodos(mensagem(usuario, "Alterou o nome para: "+novoNome), sala);
 			salas.get(sala).remove(usuario);
 			enviarParaTodos("user-list " + salas.get(sala).keySet().toString(), sala);
 		}
