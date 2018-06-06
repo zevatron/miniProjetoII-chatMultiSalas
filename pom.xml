@@ -49,7 +49,7 @@
                 <assembleDirectory>target</assembleDirectory>
                 <programs>
                     <program>
-                        <mainClass>launch.Main</mainClass>
+                        <mainClass>br.edu.ifpb.chat.Main</mainClass>
                         <name>webapp</name>
                     </program>
                 </programs>
