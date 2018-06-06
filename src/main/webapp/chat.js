@@ -1,7 +1,7 @@
 $(function() {
 		var params = (new URL(document.location)).searchParams;
 
-		checkCookie();
+//		checkCookie();
 		
 		var sala = params.get("sala");
 		var user = params.get("nickname");
@@ -9,7 +9,7 @@ $(function() {
 		var socket = new WebSocket("ws://" + document.location.host
 				+ "/chatMultiSalas/" + sala + "/" + user);
 		
-		setCookie("chatMultiSalas",sala);
+//		setCookie("chatMultiSalas",sala);
 		
 		atualizarNome(user);
 		$('#navBarTitle').text('ChatMultiSalas - ' + sala);
