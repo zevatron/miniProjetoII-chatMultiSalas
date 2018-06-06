@@ -7,7 +7,7 @@ $(function() {
 		var user = params.get("nickname");
 
 		var socket = new WebSocket("ws://" + document.location.host
-				+ "/chatMultiSalas/" + sala + "/" + user);
+				+ sala + "/" + user);
 		
 //		setCookie("chatMultiSalas",sala);
 		
