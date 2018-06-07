@@ -5,6 +5,10 @@
   <version>2.0.0</version>
   <packaging>jar</packaging>
   
+  <properties>
+    <tomcat.version>8.5.31</tomcat.version>
+  </properties>
+  
   <dependencies>
 	<!-- https://mvnrepository.com/artifact/javax.websocket/javax.websocket-api -->
 	<dependency>
@@ -24,14 +28,35 @@
 	<dependency>
 		<groupId>org.apache.tomcat.embed</groupId>
 		<artifactId>tomcat-embed-core</artifactId>
-		<version>8.5.31</version>
+		<version>${tomcat.version}</version>
 	</dependency>
 	
+	<dependency>
+            <groupId>org.apache.tomcat</groupId>
+            <artifactId>tomcat-websocket</artifactId>
+            <version>${tomcat.version}</version>
+        </dependency>
 	
+	<dependency>
+        <groupId>org.apache.tomcat.embed</groupId>
+        <artifactId>tomcat-embed-jasper</artifactId>
+        <version>${tomcat.version}</version>
+    </dependency>
+	
+	<dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-jasper</artifactId>
+        <version>${tomcat.version}</version>
+    </dependency>
+    <dependency>
+        <groupId>org.apache.tomcat</groupId>
+        <artifactId>tomcat-jasper-el</artifactId>
+        <version>${tomcat.version}</version>
+    </dependency>
   	
   </dependencies>
   <build>
-    <sourceDirectory>src</sourceDirectory>
+    <!-- <sourceDirectory>src</sourceDirectory> -->
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>
